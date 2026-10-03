@@ -18,7 +18,7 @@ The dashboard provides internal tools for managing products, inventory, orders, 
 
 ## Architecture
 
-```mermaid id="k5f2as"
+```mermaid
 flowchart TD
     A["Admin User"] --> W["Denisco Admin<br/>Next.js"]
 
