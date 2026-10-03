@@ -1,36 +1,239 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Denisco Admin
+
+Admin dashboard for **Denisco Global Agriculture Ltd.**
+
+The dashboard provides internal tools for managing products, inventory, orders, customers, payments, consultations and other business operations.
+
+## Tech Stack
+
+* **Framework:** Next.js
+* **Language:** TypeScript
+* **Data Fetching:** TanStack Query
+* **Forms:** React Hook Form + Zod
+* **Styling:** Tailwind CSS
+* **UI:** shadcn/ui + Lucide
+* **Tables:** TanStack Table
+* **Charts:** Recharts
+* **API:** Denisco Go Backend
+
+## Architecture
+
+```mermaid id="k5f2as"
+flowchart TD
+    A["Admin User"] --> W["Denisco Admin<br/>Next.js"]
+
+    W --> A1["Admin Authentication<br/>JWT + RBAC"]
+
+    W --> API["Go REST API<br/>Admin Endpoints"]
+
+    API --> DB[("MongoDB<br/>Managed")]
+    API --> R[("Redis")]
+
+    API --> P["Paystack"]
+    API --> I["ImageKit"]
+
+    subgraph Dashboard["Admin Dashboard"]
+        D["Dashboard"]
+        PR["Products & Categories"]
+        INV["Inventory"]
+        OR["Orders"]
+        CU["Customers"]
+        PY["Payments"]
+        CO["Consultations"]
+        AU["Audit Logs"]
+    end
+
+    W --> D
+    W --> PR
+    W --> INV
+    W --> OR
+    W --> CU
+    W --> PY
+    W --> CO
+    W --> AU
+```
+
+## Main Features
+
+* Admin authentication
+* Role-based access control
+* Business overview dashboard
+* Product management
+* Category management
+* Inventory management
+* Order management
+* Customer management
+* Payment and transaction management
+* Consultation booking management
+* Audit logs
+* Responsive dashboard interface
+
+## Project Structure
+
+```text id="9p7j5c"
+denisco_admin/
+├── public/
+├── src/
+│   ├── app/
+│   │   ├── login/
+│   │   └── dashboard/
+│   │       ├── products/
+│   │       ├── inventory/
+│   │       ├── orders/
+│   │       ├── customers/
+│   │       ├── payments/
+│   │       ├── consultations/
+│   │       └── audit-logs/
+│   ├── components/
+│   ├── features/
+│   ├── hooks/
+│   ├── lib/
+│   ├── providers/
+│   └── types/
+├── tests/
+├── .env.example
+├── next.config.ts
+├── package.json
+├── tsconfig.json
+└── README.md
+```
 
 ## Getting Started
 
-First, run the development server:
+### Requirements
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+* Node.js
+* npm
+
+### Installation
+
+```bash id="qz2r8x"
+git clone <repository-url>
+cd denisco_admin
+
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create the environment file:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash id="9v5s8k"
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Configure the required variables, then start the development server:
 
-## Learn More
+```bash id="6a9x3r"
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+The dashboard will be available at:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text id="k4t8rm"
+http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Backend
 
-## Deploy on Vercel
+The admin dashboard communicates directly with the Denisco Go API.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```text id="4r6f3x"
+Admin Dashboard
+      │
+      │ HTTPS / JSON
+      ▼
+Go REST API
+      │
+      ├── JWT / RBAC
+      ├── MongoDB
+      ├── Redis
+      ├── Paystack
+      └── ImageKit
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Authorization is enforced by the backend. Frontend route protection is only a user-experience layer and must not be treated as the security boundary.
+
+## Product & Design Reference
+
+The approved **HTML/CSS/JavaScript prototype** is the canonical reference for:
+
+* Dashboard layout
+* Navigation
+* Features
+* Admin workflows
+* UI components
+* Colours
+* Typography
+* Responsive behaviour
+
+The production dashboard should follow the approved prototype while replacing demo/local-storage behaviour with the production API.
+
+## Development
+
+```bash id="v2c7mn"
+npm run dev
+```
+
+Build for production:
+
+```bash id="3c4m7k"
+npm run build
+```
+
+Start production build:
+
+```bash id="r8x1qw"
+npm run start
+```
+
+Run linting:
+
+```bash id="m2n6kp"
+npm run lint
+```
+
+## Testing
+
+Tests should cover:
+
+* Authentication
+* RBAC and protected routes
+* Product management
+* Inventory operations
+* Order management
+* Customer management
+* Payment records
+* Consultation management
+* Form validation
+* API error states
+* Critical dashboard interactions
+
+## Environment
+
+Example:
+
+```env id="f1s7qd"
+NEXT_PUBLIC_API_URL=
+```
+
+Only public configuration should use `NEXT_PUBLIC_*`.
+
+Private credentials and secrets must never be committed to the repository.
+
+## Deployment
+
+The admin dashboard is deployed independently from the customer web application and backend.
+
+```text id="e2x5jw"
+Internet
+   │
+   ▼
+Cloudflare
+   │
+   ▼
+Next.js Admin
+   │
+   ▼
+Denisco Go API
+```
+
+The admin application, customer web application and backend are maintained and deployed as independent projects.
