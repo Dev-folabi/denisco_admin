@@ -1,26 +1,147 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* --- DENISCO Colors (from prototype :root) --- */
+  --color-cream: #FAF6EC;
+  --color-cream-deep: #F1EAD8;
+  --color-ink: #1E2A1B;
+  --color-forest: #173620;
+  --color-forest-deep: #0E2213;
+  --color-olive: #5B7B45;
+  --color-olive-light: #8FAE6E;
+  --color-lime: #CBE36B;
+  --color-lime-deep: #A9C93B;
+  --color-clay: #C97A4A;
+  --color-line: #E6DFC9;
+  --color-muted: #847E6C;
+  --color-danger: #B3462C;
+  --color-info: #3B6E8F;
+
+  /* Badge colors */
+  --color-badge-green-bg: #e5f0da;
+  --color-badge-green-text: #173620;
+  --color-badge-amber-bg: #faecd8;
+  --color-badge-amber-text: #a2651b;
+  --color-badge-red-bg: #f8e2db;
+  --color-badge-red-text: #B3462C;
+  --color-badge-grey-bg: #efece2;
+  --color-badge-grey-text: #847E6C;
+  --color-badge-blue-bg: #e1edf4;
+  --color-badge-blue-text: #3B6E8F;
+
+  /* --- Typography --- */
+  --font-serif: var(--font-fraunces), "Fraunces", serif;
+  --font-sans: var(--font-manrope), "Manrope", sans-serif;
+  --font-heading: var(--font-serif);
+
+  /* --- Border Radius --- */
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 10px;
+  --radius-pill: 9999px;
+  --radius-xl: 28px;
+  --radius-2xl: 28px;
+
+  /* --- Shadows --- */
+  --shadow-default: 0 10px 30px rgba(23, 54, 32, 0.10);
+  --shadow-lg: 0 26px 60px rgba(14, 34, 19, 0.18);
+
+  /* --- shadcn/ui theme mapping --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* --- Chart colors (admin dashboard) --- */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* --- Sidebar mapping --- */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Map shadcn CSS variables to DENISCO admin palette */
+:root {
+  --background: #F1EAD8;
+  --foreground: #1E2A1B;
+  --card: #FFFFFF;
+  --card-foreground: #1E2A1B;
+  --popover: #FFFFFF;
+  --popover-foreground: #1E2A1B;
+  --primary: #173620;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FAF6EC;
+  --secondary-foreground: #173620;
+  --accent: #CBE36B;
+  --accent-foreground: #0E2213;
+  --destructive: #B3462C;
+  --muted: #FAF6EC;
+  --muted-foreground: #847E6C;
+  --border: #E6DFC9;
+  --input: #E6DFC9;
+  --ring: #5B7B45;
+  --radius: 10px;
+
+  /* Chart colors for admin dashboard */
+  --chart-1: #5B7B45;
+  --chart-2: #8FAE6E;
+  --chart-3: #CBE36B;
+  --chart-4: #173620;
+  --chart-5: #C97A4A;
+
+  /* Admin sidebar — forest-deep */
+  --sidebar: #0E2213;
+  --sidebar-foreground: #c7dcbe;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #0E2213;
+  --sidebar-accent: rgba(255, 255, 255, 0.1);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.14);
+  --sidebar-ring: #5B7B45;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream-deep);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
