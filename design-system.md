@@ -4,6 +4,8 @@
 **Implementation:** Tailwind CSS custom theme + shadcn/ui
 **Shares base tokens with:** `denisco_web/design-system.md`
 
+> **MANDATORY:** Always read and follow this file AND `denisco_prototype.html` before implementing any admin UI component or page. All values here are extracted directly from the prototype CSS. Do not guess — use the exact tokens listed.
+
 ---
 
 ## 1. Color Palette

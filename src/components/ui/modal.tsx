@@ -32,7 +32,7 @@ export function Modal({ open, onClose, title, wide, children }: ModalProps) {
   return (
     <dialog
       ref={dialogRef}
-      className="m-auto max-h-[85dvh] w-[92vw] max-w-[520px] overflow-y-auto rounded-[18px] border border-line bg-white p-0 shadow-[var(--shadow-lg)] backdrop:bg-black/50 backdrop:backdrop-blur-[4px] open:flex open:flex-col"
+      className="m-auto max-h-[90vh] w-[92vw] max-w-[560px] overflow-y-auto rounded-[24px] border border-line bg-white p-0 shadow-[var(--shadow-lg)] backdrop:bg-[rgba(14,34,19,0.6)] backdrop:backdrop-blur-[4px] open:flex open:flex-col"
       style={wide ? { maxWidth: 720 } : undefined}
     >
       {title && (
@@ -41,7 +41,7 @@ export function Modal({ open, onClose, title, wide, children }: ModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="grid size-9 place-items-center rounded-[10px] text-muted transition-colors hover:bg-cream-deep hover:text-forest"
+            className="grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-cream-deep hover:text-forest"
           >
             <X size={18} />
           </button>

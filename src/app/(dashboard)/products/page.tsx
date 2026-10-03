@@ -106,9 +106,7 @@ export default function ProductsPage() {
       key: "status",
       header: "Status",
       render: (row: Product) => (
-        <StatusPill
-          status={row.stock > 0 ? "in_stock" : "out_of_stock"}
-        />
+        <StatusPill status={row.stock > 0 ? "in_stock" : "out_of_stock"} />
       ),
     },
     {

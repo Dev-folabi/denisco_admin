@@ -5,6 +5,10 @@
 
 ---
 
+> **UI & Design Rule — Non-negotiable:** Every visual decision must match `denisco_prototype.html` exactly. Treat it as the final design spec. Before implementing any UI element, component, or page, check the prototype AND `design-system.md` for exact values (colors, font sizes, spacing, copy, icons). Do not guess or use Tailwind defaults — always use the design system tokens.
+
+---
+
 ## 1. Project Setup
 
 - [x] Run `npx create-next-app@latest denisco_admin --typescript --tailwind --app --src-dir`

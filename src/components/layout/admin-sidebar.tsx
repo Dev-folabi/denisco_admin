@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
-  LayoutDashboard,
+  Gauge,
+  Carrot,
   Package,
-  ShoppingCart,
   Users,
-  CreditCard,
+  Receipt,
   CalendarCheck,
   Settings,
-  ExternalLink,
+  ArrowLeft,
   LogOut,
   X,
 } from "lucide-react";
@@ -19,21 +19,21 @@ import { useAuth } from "@/lib/auth/auth-provider";
 import { ADMIN } from "@/lib/constants";
 
 const ICONS: Record<string, React.ElementType> = {
-  LayoutDashboard,
+  Gauge,
+  Carrot,
   Package,
-  ShoppingCart,
   Users,
-  CreditCard,
+  Receipt,
   CalendarCheck,
   Settings,
 };
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-  { label: "Products", href: "/products", icon: "Package" },
-  { label: "Orders", href: "/orders", icon: "ShoppingCart" },
+  { label: "Dashboard", href: "/dashboard", icon: "Gauge" },
+  { label: "Products", href: "/products", icon: "Carrot" },
+  { label: "Orders", href: "/orders", icon: "Package" },
   { label: "Customers", href: "/customers", icon: "Users" },
-  { label: "Transactions", href: "/payments", icon: "CreditCard" },
+  { label: "Transactions", href: "/payments", icon: "Receipt" },
   { label: "Consultations", href: "/consultations", icon: "CalendarCheck" },
 ];
 
@@ -61,7 +61,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
       />
 
       <aside
-        className={`fixed left-0 top-0 z-[300] flex h-dvh w-[min(88vw,320px)] flex-col overflow-y-auto bg-forest-deep p-5 text-[#c7dcbe] shadow-lg transition-transform duration-250 ease-out lg:sticky lg:z-auto lg:w-[260px] lg:translate-x-0 lg:shadow-none ${
+        className={`fixed left-0 top-0 z-[300] flex h-dvh w-[min(88vw,320px)] flex-col overflow-y-auto bg-forest-deep py-6 px-4 text-[#c7dcbe] shadow-lg transition-transform duration-250 ease-out lg:sticky lg:z-auto lg:w-[260px] lg:translate-x-0 lg:shadow-none ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -69,9 +69,9 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           <Image
             src="https://ik.imagekit.io/a8q3rfdl1/DENISCO%20FARM%20MEDIA/Company%20logo.jpeg"
             alt="DENISCO logo"
-            width={40}
-            height={40}
-            className="size-10 rounded-full border border-white/20 bg-white object-cover"
+            width={50}
+            height={50}
+            className="size-[50px] rounded-full border border-white/20 bg-white object-cover"
           />
           <div className="flex flex-col text-white">
             <strong className="font-heading text-[15px]">{ADMIN.name}</strong>
@@ -130,7 +130,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
             rel="noopener noreferrer"
             className="mb-[5px] flex items-center gap-[13px] rounded-[10px] px-[15px] py-[13px] text-[13.5px] font-bold text-[#a9c69d] transition-colors hover:bg-white/10 hover:text-white"
           >
-            <ExternalLink size={18} />
+            <ArrowLeft size={18} />
             Back to Website
           </a>
 

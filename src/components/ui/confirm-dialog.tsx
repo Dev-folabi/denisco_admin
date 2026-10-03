@@ -44,14 +44,14 @@ export function ConfirmDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="m-auto w-[92vw] max-w-[440px] rounded-[18px] border border-line bg-white p-0 shadow-[var(--shadow-lg)] backdrop:bg-black/50 backdrop:backdrop-blur-[4px]"
+      className="m-auto w-[92vw] max-w-[440px] rounded-[24px] border border-line bg-white p-0 shadow-[var(--shadow-lg)] backdrop:bg-[rgba(14,34,19,0.6)] backdrop:backdrop-blur-[4px]"
     >
       <div className="flex items-center justify-between border-b border-line px-7 py-5">
         <h2 className="m-0 text-lg font-semibold">{title}</h2>
         <button
           type="button"
           onClick={onClose}
-          className="grid size-9 place-items-center rounded-[10px] text-muted transition-colors hover:bg-cream-deep hover:text-forest"
+          className="grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-cream-deep hover:text-forest"
         >
           <X size={18} />
         </button>
@@ -70,8 +70,8 @@ export function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className={`rounded-full px-6 py-[11px] text-sm font-bold text-white transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 ${
-              danger ? "bg-danger hover:bg-danger/80" : "bg-forest hover:bg-olive"
+            className={`rounded-full px-6 py-[11px] text-sm font-bold transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 ${
+              danger ? "bg-[#fbe7e1] text-danger hover:bg-danger hover:text-white" : "bg-forest text-white hover:bg-olive"
             }`}
           >
             {loading ? "Processing…" : confirmLabel}

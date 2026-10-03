@@ -69,16 +69,16 @@ export default function DashboardPage() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="grid grid-cols-[42px_1fr_auto] items-center gap-3 rounded-[14px] border border-line p-3"
+                className="grid grid-cols-[38px_1fr_auto] items-center gap-3 rounded-[14px] border border-line bg-cream p-3"
               >
-                <div className="grid size-[42px] place-items-center rounded-full bg-cream-deep text-forest">
+                <div className="grid size-[38px] place-items-center rounded-full bg-white text-olive">
                   <Package size={16} />
                 </div>
                 <div className="min-w-0">
                   <strong className="block truncate text-[13px]">
                     DG-00000{i}
                   </strong>
-                  <span className="text-[11px] text-muted">Customer Name</span>
+                  <span className="text-[11.5px] text-muted">Customer Name</span>
                 </div>
                 <div className="text-right">
                   <strong className="block text-[13px]">₦0</strong>
@@ -103,16 +103,16 @@ export default function DashboardPage() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="grid grid-cols-[42px_1fr_auto] items-center gap-3 rounded-[14px] border border-line p-3"
+                className="grid grid-cols-[38px_1fr_auto] items-center gap-3 rounded-[14px] border border-line bg-cream p-3"
               >
-                <div className="grid size-[42px] place-items-center rounded-full bg-cream-deep text-forest">
+                <div className="grid size-[38px] place-items-center rounded-full bg-white text-olive">
                   <CalendarCheck size={16} />
                 </div>
                 <div className="min-w-0">
                   <strong className="block truncate text-[13px]">
                     CB-0000{i}
                   </strong>
-                  <span className="text-[11px] text-muted">
+                  <span className="text-[11.5px] text-muted">
                     General Consultation
                   </span>
                 </div>

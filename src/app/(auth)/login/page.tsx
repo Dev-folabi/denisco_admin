@@ -34,9 +34,13 @@ export default function AdminLoginPage() {
     <section className="flex min-h-dvh items-center justify-center bg-forest-deep px-6 py-16">
       <div className="w-full max-w-[420px] rounded-[18px] border border-line bg-white p-8 shadow-[var(--shadow-lg)]">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 grid size-[60px] place-items-center rounded-full bg-cream-deep font-heading text-xl font-bold text-forest">
-            D
-          </div>
+          <Image
+            src="https://ik.imagekit.io/a8q3rfdl1/DENISCO%20FARM%20MEDIA/Company%20logo.jpeg"
+            alt="DENISCO logo"
+            width={60}
+            height={60}
+            className="mx-auto mb-4 size-[60px] rounded-full border border-line bg-white object-cover"
+          />
           <h1 className="text-[28px] font-semibold">Admin Login</h1>
           <p className="text-sm text-muted">{ADMIN.subtitle}</p>
         </div>

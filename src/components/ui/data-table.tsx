@@ -49,12 +49,12 @@ export function DataTable<T extends object>({
               return (
                 <tr
                   key={(r[keyField] as string) || i}
-                  className="border-b border-line transition-colors hover:bg-cream/50"
+                  className="border-b border-line transition-colors hover:bg-cream"
                 >
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={`px-[18px] py-3.5 text-sm ${col.className || ""}`}
+                      className={`px-[18px] py-3.5 text-[13.5px] ${col.className || ""}`}
                     >
                       {col.render
                         ? col.render(row)
