@@ -11,6 +11,7 @@ import { ORDER_STATUSES } from "@/lib/constants";
 export default function OrderDetailPage() {
   const toggleSidebar = useSidebarToggle();
   const [fulfillmentStatus, setFulfillmentStatus] = useState("pending");
+  const [statusUpdated, setStatusUpdated] = useState(false);
 
   return (
     <>
@@ -23,7 +24,7 @@ export default function OrderDetailPage() {
         / <span>DG-000000</span>
       </nav>
 
-      <div className="grid grid-cols-[1fr_320px] gap-5 max-[1024px]:grid-cols-1">
+      <div className="grid grid-cols-[1fr_320px] gap-5 [@media(max-width:1024px)]:grid-cols-1">
         {/* Order detail */}
         <Panel>
           <PanelHead>
@@ -105,7 +106,10 @@ export default function OrderDetailPage() {
             </h4>
             <select
               value={fulfillmentStatus}
-              onChange={(e) => setFulfillmentStatus(e.target.value)}
+              onChange={(e) => {
+                setFulfillmentStatus(e.target.value);
+                setStatusUpdated(false);
+              }}
               className="mb-3 w-full rounded-[10px] border-[1.5px] border-line bg-white px-4 py-[11px] text-sm capitalize outline-none focus:border-olive"
             >
               {ORDER_STATUSES.map((s) => (
@@ -116,10 +120,16 @@ export default function OrderDetailPage() {
             </select>
             <button
               type="button"
+              onClick={() => setStatusUpdated(true)}
               className="w-full rounded-full bg-forest px-5 py-[11px] text-[13px] font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-olive"
             >
               Update Status
             </button>
+            {statusUpdated && (
+              <p className="mt-2.5 text-center text-[12px] font-bold text-badge-green-text">
+                Status updated to {fulfillmentStatus}
+              </p>
+            )}
           </Panel>
         </div>
       </div>

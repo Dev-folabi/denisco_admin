@@ -18,6 +18,13 @@ export function DataTable<T extends object>({
   emptyMessage = "No data available.",
   keyField = "id",
 }: DataTableProps<T>) {
+  if (data.length === 0) {
+    return (
+      <div className="rounded-[18px] border border-line px-4 py-10 text-center text-sm text-muted">
+        {emptyMessage}
+      </div>
+    );
+  }
   return (
     <div className="overflow-x-auto rounded-[18px] border border-line">
       <table className="w-full min-w-[640px] border-collapse">
@@ -34,37 +41,26 @@ export function DataTable<T extends object>({
           </tr>
         </thead>
         <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td
-                colSpan={columns.length}
-                className="px-[18px] py-10 text-center text-sm text-muted"
+          {data.map((row, i) => {
+            const r = row as Record<string, unknown>;
+            return (
+              <tr
+                key={(r[keyField] as string) || i}
+                className="border-b border-line transition-colors hover:bg-cream"
               >
-                {emptyMessage}
-              </td>
-            </tr>
-          ) : (
-            data.map((row, i) => {
-              const r = row as Record<string, unknown>;
-              return (
-                <tr
-                  key={(r[keyField] as string) || i}
-                  className="border-b border-line transition-colors hover:bg-cream"
-                >
-                  {columns.map((col) => (
-                    <td
-                      key={col.key}
-                      className={`px-[18px] py-3.5 text-[13.5px] ${col.className || ""}`}
-                    >
-                      {col.render
-                        ? col.render(row)
-                        : (r[col.key] as React.ReactNode)}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })
-          )}
+                {columns.map((col) => (
+                  <td
+                    key={col.key}
+                    className={`px-[18px] py-3.5 text-[13.5px] ${col.className || ""}`}
+                  >
+                    {col.render
+                      ? col.render(row)
+                      : (r[col.key] as React.ReactNode)}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

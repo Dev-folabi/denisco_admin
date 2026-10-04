@@ -10,7 +10,7 @@ interface AdminTopbarProps {
 
 export function AdminTopbar({ title, info, onToggleSidebar }: AdminTopbarProps) {
   return (
-    <div className="mb-7 flex flex-wrap items-center justify-between gap-[14px] max-sm:mb-[18px]">
+    <div className="mb-7 flex flex-wrap items-center justify-between gap-[14px] [@media(max-width:640px)]:mb-[18px]">
       <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
@@ -20,12 +20,12 @@ export function AdminTopbar({ title, info, onToggleSidebar }: AdminTopbarProps) 
         >
           <Menu size={20} />
         </button>
-        <h1 className="m-0 font-heading text-[26px] font-semibold text-forest max-sm:text-[21px] max-sm:break-words">
+        <h1 className="m-0 font-heading text-[26px] font-semibold text-forest [@media(max-width:640px)]:text-[21px] [@media(max-width:640px)]:break-words">
           {title}
         </h1>
       </div>
       {info && (
-        <span className="text-[13px] text-muted max-sm:hidden">{info}</span>
+        <span className="text-[13px] text-muted [@media(max-width:640px)]:hidden">{info}</span>
       )}
     </div>
   );

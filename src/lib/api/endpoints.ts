@@ -4,6 +4,8 @@ export const ENDPOINTS = {
     refresh: "/auth/refresh",
     logout: "/auth/logout",
     me: "/auth/me",
+    changePassword: "/auth/change-password",
+    forgotPassword: "/auth/forgot-password",
   },
   dashboard: {
     overview: "/admin/dashboard/overview",

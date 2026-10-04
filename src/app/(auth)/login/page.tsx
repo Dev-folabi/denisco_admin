@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { useRouter } from "next/navigation";
 import { ADMIN } from "@/lib/constants";
@@ -22,9 +23,13 @@ export default function AdminLoginPage() {
       await login(email, password);
       router.push("/dashboard");
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Login failed. Please try again.",
-      );
+      const message =
+        err instanceof Error && err.message === "Failed to fetch"
+          ? "Unable to connect to the server. Please try again later."
+          : err instanceof Error
+            ? err.message
+            : "Login failed. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -77,6 +82,12 @@ export default function AdminLoginPage() {
               placeholder="••••••••"
               required
             />
+            <Link
+              href="/forgot-password"
+              className="mt-2 block text-right text-[13px] font-bold text-olive hover:text-forest"
+            >
+              Forgot password?
+            </Link>
           </div>
           <button
             type="submit"

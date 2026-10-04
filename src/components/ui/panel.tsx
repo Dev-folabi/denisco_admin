@@ -6,7 +6,7 @@ interface PanelProps {
 export function Panel({ children, className = "" }: PanelProps) {
   return (
     <div
-      className={`rounded-[18px] border border-line bg-white p-[26px] shadow-[var(--shadow-default)] max-sm:p-4 ${className}`}
+      className={`rounded-[18px] border border-line bg-white p-[26px] shadow-[var(--shadow-default)] [@media(max-width:640px)]:p-4 ${className}`}
     >
       {children}
     </div>

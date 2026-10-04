@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistedState } from "@/hooks/use-persisted-state";
 import { AdminTopbar } from "@/components/layout/admin-topbar";
 import { useSidebarToggle } from "../layout";
 import { Panel, PanelHead } from "@/components/ui/panel";
@@ -36,7 +37,10 @@ const EMPTY_FORM = {
 
 export default function ProductsPage() {
   const toggleSidebar = useSidebarToggle();
-  const [products] = useState<Product[]>([]);
+  const [products, setProducts] = usePersistedState<Product[]>(
+    "denisco_admin_products",
+    [],
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -69,6 +73,36 @@ export default function ProductsPage() {
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function saveProduct(e: React.FormEvent) {
+    e.preventDefault();
+    const price = Math.round(Number(form.price) * 100);
+    const stock = Number(form.stock);
+    if (editId) {
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === editId
+            ? { ...p, ...form, price, stock, slug: form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") }
+            : p,
+        ),
+      );
+    } else {
+      const slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      setProducts((prev) => [
+        {
+          id: `PRD-${Date.now()}`,
+          ...form,
+          price,
+          stock,
+          slug,
+          images: [],
+          status: stock > 0 ? "active" : "out_of_stock",
+        },
+        ...prev,
+      ]);
+    }
+    setModalOpen(false);
   }
 
   const columns = [
@@ -164,12 +198,7 @@ export default function ProductsPage() {
         onClose={() => setModalOpen(false)}
         title={editId ? "Edit Product" : "Add Product"}
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setModalOpen(false);
-          }}
-        >
+        <form onSubmit={saveProduct}>
           <div className="space-y-5">
             <div>
               <label className="mb-2 block text-[13px] font-bold text-forest">
@@ -283,7 +312,11 @@ export default function ProductsPage() {
       <ConfirmDialog
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        onConfirm={() => setDeleteOpen(false)}
+        onConfirm={() => {
+          setProducts((prev) => prev.filter((p) => p.id !== deleteId));
+          setDeleteId(null);
+          setDeleteOpen(false);
+        }}
         title="Delete Product?"
         message="This action cannot be undone. The product will be permanently removed."
         confirmLabel="Delete Product"

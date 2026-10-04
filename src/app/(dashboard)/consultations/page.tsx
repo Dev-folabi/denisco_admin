@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { usePersistedState } from "@/hooks/use-persisted-state";
 import { AdminTopbar } from "@/components/layout/admin-topbar";
 import { useSidebarToggle } from "../layout";
 import { Panel, PanelHead } from "@/components/ui/panel";
 import { DataTable } from "@/components/ui/data-table";
-import { StatusPill } from "@/components/ui/status-pill";
 import { Modal } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { MoneyFromKobo, fmtDate } from "@/lib/utils/format";
@@ -19,12 +19,25 @@ const EMPTY_TYPE_FORM = {
   description: "",
 };
 
+interface ConsultType {
+  id: string;
+  name: string;
+  duration: number;
+  price: number;
+  description: string;
+}
+
 export default function ConsultationsPage() {
   const toggleSidebar = useSidebarToggle();
   const [typeModalOpen, setTypeModalOpen] = useState(false);
   const [typeDeleteOpen, setTypeDeleteOpen] = useState(false);
   const [editTypeId, setEditTypeId] = useState<string | null>(null);
+  const [typeDeleteId, setTypeDeleteId] = useState<string | null>(null);
   const [typeForm, setTypeForm] = useState(EMPTY_TYPE_FORM);
+  const [types, setTypes] = usePersistedState<ConsultType[]>(
+    "denisco_admin_consult_types",
+    [],
+  );
 
   // Date availability state
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -51,6 +64,37 @@ export default function ConsultationsPage() {
     setEditTypeId(null);
     setTypeForm(EMPTY_TYPE_FORM);
     setTypeModalOpen(true);
+  }
+
+  function openEditType(t: ConsultType) {
+    setEditTypeId(t.id);
+    setTypeForm({
+      name: t.name,
+      duration: String(t.duration),
+      price: String(t.price / 100),
+      description: t.description,
+    });
+    setTypeModalOpen(true);
+  }
+
+  function saveType(e: React.FormEvent) {
+    e.preventDefault();
+    const duration = Number(typeForm.duration);
+    const price = Math.round(Number(typeForm.price) * 100);
+    const patch = {
+      name: typeForm.name,
+      duration,
+      price,
+      description: typeForm.description,
+    };
+    if (editTypeId) {
+      setTypes((prev) =>
+        prev.map((t) => (t.id === editTypeId ? { ...t, ...patch } : t)),
+      );
+    } else {
+      setTypes((prev) => [...prev, { id: `CT-${Date.now()}`, ...patch }]);
+    }
+    setTypeModalOpen(false);
   }
 
   function toggleDate(dateStr: string) {
@@ -156,13 +200,58 @@ export default function ConsultationsPage() {
             <Plus size={15} /> Add Type
           </button>
         </PanelHead>
-        <p className="text-sm text-muted">
-          No consultation types configured. Add types to allow clients to book.
-        </p>
+        {types.length === 0 ? (
+          <p className="text-sm text-muted">
+            No consultation types configured. Add types to allow clients to
+            book.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {types.map((t) => (
+              <div
+                key={t.id}
+                className="flex flex-wrap items-center justify-between gap-3.5 rounded-[14px] border border-line bg-cream p-4"
+              >
+                <div className="min-w-0">
+                  <h4 className="m-0 mb-1 text-[15px] font-semibold">{t.name}</h4>
+                  {t.description && (
+                    <p className="mb-1.5 text-[13px] text-muted">
+                      {t.description}
+                    </p>
+                  )}
+                  <span className="text-[12px] font-bold text-olive">
+                    {t.duration} mins · {MoneyFromKobo(t.price)}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEditType(t)}
+                    className="grid size-[32px] place-items-center rounded-[8px] border border-line text-muted transition-colors hover:bg-cream-deep hover:text-forest"
+                    aria-label={`Edit ${t.name}`}
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTypeDeleteId(t.id);
+                      setTypeDeleteOpen(true);
+                    }}
+                    className="grid size-[32px] place-items-center rounded-[8px] border border-line text-muted transition-colors hover:bg-badge-red-bg hover:text-danger"
+                    aria-label={`Delete ${t.name}`}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Panel>
 
       {/* Section 3: Booking Availability */}
-      <div className="grid grid-cols-2 gap-5 max-[1024px]:grid-cols-1">
+      <div className="grid grid-cols-2 gap-5 [@media(max-width:1024px)]:grid-cols-1">
         {/* Date availability */}
         <Panel>
           <PanelHead>
@@ -328,12 +417,7 @@ export default function ConsultationsPage() {
         onClose={() => setTypeModalOpen(false)}
         title={editTypeId ? "Edit Consultation Type" : "Add Consultation Type"}
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setTypeModalOpen(false);
-          }}
-        >
+        <form onSubmit={saveType}>
           <div className="space-y-5">
             <div>
               <label className="mb-2 block text-[13px] font-bold text-forest">
@@ -412,7 +496,11 @@ export default function ConsultationsPage() {
       <ConfirmDialog
         open={typeDeleteOpen}
         onClose={() => setTypeDeleteOpen(false)}
-        onConfirm={() => setTypeDeleteOpen(false)}
+        onConfirm={() => {
+          setTypes((prev) => prev.filter((t) => t.id !== typeDeleteId));
+          setTypeDeleteId(null);
+          setTypeDeleteOpen(false);
+        }}
         title="Delete Consultation Type?"
         message="This will permanently remove this consultation type."
         confirmLabel="Delete Type"

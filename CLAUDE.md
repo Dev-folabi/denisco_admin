@@ -14,7 +14,7 @@
 - [x] Run `npx create-next-app@latest denisco_admin --typescript --tailwind --app --src-dir`
 - [x] Run `npx shadcn@latest init`
 - [x] Install dependencies: `@tanstack/react-query zod react-hook-form @hookform/resolvers lucide-react chart.js react-chartjs-2`
-- [x] Set up directory structure (below)
+- [x] Set up directory structure (below) — dirs created; note: `inventory/`, `consultations/{types,slots,bookings}`, `payments/[id]`, `products/{new,[id]}` are empty shells (pages not built — not in the page list of §3/root plan §4)
 - [x] Configure Tailwind with design system tokens
 - [x] Set up `next/font/google` for Fraunces + Manrope
 
@@ -128,9 +128,9 @@ color: #c7dcbe;
 padding: 24px 16px;
 ```
 - [x] Brand: logo + "DENISCO Admin" + "Management Console" subtitle
-- [ ] Nav links: `13.5px bold; padding: 13px 15px; border-radius: 10px; color: #a9c69d;`
-- [ ] Active/hover: `background: rgba(255,255,255,.1); color: white;`
-- [ ] Divider: `border-top: 1px solid rgba(255,255,255,.14);`
+- [x] Nav links: `13.5px bold; padding: 13px 15px; border-radius: 10px; color: #a9c69d;`
+- [x] Active/hover: `background: rgba(255,255,255,.1); color: white;`
+- [x] Divider: `border-top: 1px solid rgba(255,255,255,.14);`
 - [x] Nav items: Dashboard, Products, Orders, Customers, Transactions, Consultations | Settings, Back to Website, Logout
 
 ### Topbar
@@ -151,8 +151,16 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 
 **URL:** `/login`
 **Layout:** Full-screen, forest-deep background, centered card (420px)
-**Content:** Logo, "Admin Login" title, username + password fields, login button, "Back to Website" link
+**Content:** Logo, "Admin Login" title, username + password fields, "Forgot password?" link, login button, "Back to Website" link
 **Auth:** `POST /api/v1/auth/admin/login` — issues JWT only for admin/super_admin roles
+
+### 3.1b Admin Forgot Password Page
+- [x] **Implement Forgot Password Page**
+
+**URL:** `/forgot-password`
+**Layout:** Same card as login
+**Content:** Email field, "Send Reset Link" button, success banner ("If an account with that email exists…"), friendly connection error, "Back to Login" link
+**Auth:** `POST /api/v1/auth/forgot-password`
 
 ### 3.2 Dashboard (`/dashboard`)
 - [x] **Implement Dashboard Page**
@@ -167,7 +175,7 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 | Pending | `Hourglass` | {count} | Pending Orders |
 | Bookings | `CalendarCheck` | {count} | Consultation Bookings |
 
-- [x] **Sales Chart** — Bar chart (Chart.js), last 7 days revenue. Olive green bars, rounded corners.
+- [ ] **Sales Chart** — Bar chart (Chart.js), last 7 days revenue. Olive green bars, rounded corners. — panel renders a placeholder ("Chart will render when API data is available"); wire Chart.js once real revenue data exists (§5)
 - [x] **Recent Activity** — 2-column grid: Recent Orders panel + Recent Bookings panel
 
 ### 3.3 Products Page (`/products`)
@@ -175,6 +183,7 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 
 **Panel:** "All Products ({count})" title + "Add Product" primary button
 **Table columns:** Image (48px round), Name, Category, Price, Unit, Stock, Status (green pill if in stock / red if out), Actions (Edit + Delete buttons)
+**Persistence:** products stored in localStorage (`denisco_admin_products`) until the API is live; Settings → Reset Demo Data clears them
 
 - [x] **Implement Add/Edit Product Modal** — Product Name, Category (select), Unit, Price ₦, Stock Quantity, Product Image (file upload with preview, max 8MB), Description
 - [x] **Implement Delete Product** — Confirmation dialog: "Delete Product?" with product name
@@ -239,6 +248,9 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 - [x] **Implement Settings Page**
 
 **Panels:**
+- Admin Profile: initials avatar, full name, email, role badge (Admin / Super Admin) from `useAuth()`; graceful "Not signed in" / loading / "connects to the API" states
+- Change Password: current / new / confirm fields with show-hide toggles; client validation (required, min 8, match, different from current); `POST /api/v1/auth/change-password` via apiClient with friendly connection error; inline success/error feedback
+- Logout: confirmation dialog → `logout()` → redirect to `/login`
 - Demo Data Management: Reset button with confirmation
 - Admin Access Info: credentials display
 
@@ -277,21 +289,22 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 - [ ] Audit logs: `GET /api/v1/admin/audit-logs`
 
 ### Auth Flow
-- [ ] Admin enters username + password
-- [ ] `POST /api/v1/auth/admin/login` returns access JWT (in body) + refresh token (HttpOnly cookie)
-- [ ] All subsequent requests: `Authorization: Bearer {accessToken}`
-- [ ] On 401: attempt refresh via cookie, retry
-- [ ] On refresh failure: redirect to `/login`
+*Client-side flow is implemented (login form → auth-provider → API client); untested until the backend is up.*
+- [x] Admin enters username + password
+- [x] `POST /api/v1/auth/admin/login` returns access JWT (in body) + refresh token (HttpOnly cookie)
+- [x] All subsequent requests: `Authorization: Bearer {accessToken}`
+- [x] On 401: attempt refresh via cookie, retry
+- [x] On refresh failure: redirect to `/login`
 
 ---
 
 ## 6. Rendering Strategy
 
 All admin pages are **client-side rendered** (CSR):
-- [ ] Every page requires authentication
-- [ ] All data fetched via TanStack Query with admin bearer token
+- [ ] Every page requires authentication — auth state exists (login, role check, JWT storage) but no route guard is wired; pages render in demo mode without a backend (guard deferred until API is live)
+- [ ] All data fetched via TanStack Query with admin bearer token — provider installed, no queries yet (tables use demo/localStorage data)
 - [ ] Loading states via `useQuery` pending state
-- [ ] Error boundaries for API failures
+- [x] Error boundaries for API failures — `src/app/error.tsx` + `src/app/loading.tsx`
 
 ---
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Gauge,
@@ -10,6 +10,7 @@ import {
   Users,
   Receipt,
   CalendarCheck,
+  History,
   Settings,
   ArrowLeft,
   LogOut,
@@ -25,6 +26,7 @@ const ICONS: Record<string, React.ElementType> = {
   Users,
   Receipt,
   CalendarCheck,
+  History,
   Settings,
 };
 
@@ -35,6 +37,7 @@ const NAV_ITEMS = [
   { label: "Customers", href: "/customers", icon: "Users" },
   { label: "Transactions", href: "/payments", icon: "Receipt" },
   { label: "Consultations", href: "/consultations", icon: "CalendarCheck" },
+  { label: "Audit Logs", href: "/audit-logs", icon: "History" },
 ];
 
 interface AdminSidebarProps {
@@ -44,6 +47,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { logout } = useAuth();
 
   const isActive = (href: string) =>
@@ -137,7 +141,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           <button
             type="button"
             onClick={() => {
-              logout();
+              logout().finally(() => router.push("/login"));
               onClose();
             }}
             className="mt-auto flex items-center gap-[13px] rounded-[10px] border-0 bg-transparent px-[15px] py-[13px] text-[13.5px] font-bold text-[#a9c69d] transition-colors hover:bg-white/10 hover:text-white"

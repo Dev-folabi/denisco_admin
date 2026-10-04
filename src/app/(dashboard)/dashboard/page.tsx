@@ -36,7 +36,7 @@ export default function DashboardPage() {
       />
 
       {/* Stat cards */}
-      <div className="mb-[34px] grid grid-cols-3 gap-5 max-[1024px]:grid-cols-2 max-[420px]:grid-cols-1 max-sm:gap-3">
+      <div className="mb-[34px] grid grid-cols-3 gap-5 [@media(max-width:1024px)]:grid-cols-2 [@media(max-width:420px)]:grid-cols-1! [@media(max-width:640px)]:gap-3">
         {STATS.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
@@ -54,7 +54,7 @@ export default function DashboardPage() {
       </Panel>
 
       {/* Recent activity */}
-      <div className="grid grid-cols-2 gap-5 max-[1024px]:grid-cols-1">
+      <div className="grid grid-cols-2 gap-5 [@media(max-width:1024px)]:grid-cols-1">
         <Panel>
           <PanelHead>
             <h3 className="m-0 text-[17px] font-semibold">Recent Orders</h3>

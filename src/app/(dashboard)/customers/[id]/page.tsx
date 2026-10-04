@@ -58,7 +58,7 @@ export default function CustomerDetailPage() {
         / <span>Customer Name</span>
       </nav>
 
-      <div className="mb-5 grid grid-cols-2 gap-5 max-[760px]:grid-cols-1">
+      <div className="mb-5 grid grid-cols-2 gap-5 [@media(max-width:760px)]:grid-cols-1">
         {/* Profile */}
         <Panel>
           <h4 className="mb-3 text-[14px] font-semibold">Profile</h4>
