@@ -175,7 +175,7 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 | Pending | `Hourglass` | {count} | Pending Orders |
 | Bookings | `CalendarCheck` | {count} | Consultation Bookings |
 
-- [ ] **Sales Chart** — Bar chart (Chart.js), last 7 days revenue. Olive green bars, rounded corners. — panel renders a placeholder ("Chart will render when API data is available"); wire Chart.js once real revenue data exists (§5)
+- [x] **Sales Chart** — Bar chart (Chart.js), last 7 days revenue. Olive green bars, rounded corners; days are bucketed by trading day in Africa/Lagos, and an all-zero week still draws a scaled axis
 - [x] **Recent Activity** — 2-column grid: Recent Orders panel + Recent Bookings panel
 
 ### 3.3 Products Page (`/products`)
@@ -183,10 +183,10 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 
 **Panel:** "All Products ({count})" title + "Add Product" primary button
 **Table columns:** Image (48px round), Name, Category, Price, Unit, Stock, Status (green pill if in stock / red if out), Actions (Edit + Delete buttons)
-**Persistence:** products stored in localStorage (`denisco_admin_products`) until the API is live; Settings → Reset Demo Data clears them
+**Persistence:** products come from `GET /api/v1/admin/products`; create, edit and archive write through the API
 
-- [x] **Implement Add/Edit Product Modal** — Product Name, Category (select), Unit, Price ₦, Stock Quantity, Product Image (file upload with preview, max 8MB), Description
-- [x] **Implement Delete Product** — Confirmation dialog: "Delete Product?" with product name
+- [x] **Implement Add/Edit Product Modal** — Product Name, Category (select), Unit, Price ₦, Stock Quantity, Product Image (direct ImageKit upload with preview, max 8MB), Description
+- [x] **Implement Delete Product** — Confirmation dialog naming the product. Archiving is a soft delete: the record is kept because past orders reference it and its stock history must stay explainable
 
 ### 3.4 Orders Page (`/orders`)
 - [x] **Implement Orders List Page**
@@ -251,8 +251,9 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 - Admin Profile: initials avatar, full name, email, role badge (Admin / Super Admin) from `useAuth()`; graceful "Not signed in" / loading / "connects to the API" states
 - Change Password: current / new / confirm fields with show-hide toggles; client validation (required, min 8, match, different from current); `POST /api/v1/auth/change-password` via apiClient with friendly connection error; inline success/error feedback
 - Logout: confirmation dialog → `logout()` → redirect to `/login`
-- Demo Data Management: Reset button with confirmation
-- Admin Access Info: credentials display
+
+The prototype's Demo Data Management and Admin Access Info panels were removed
+on 2026-10-10 — see §10.
 
 ---
 
@@ -274,21 +275,35 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 
 ### Endpoints Used
 
-- [ ] Login: `POST /api/v1/auth/admin/login`
-- [ ] Refresh: `POST /api/v1/auth/refresh`
-- [ ] Dashboard: `GET /api/v1/admin/dashboard/overview`
-- [ ] Products: `GET/POST/PATCH/DELETE /api/v1/admin/products`
-- [ ] Upload sig: `POST /api/v1/admin/products/upload-signature`
-- [ ] Inventory: `GET/POST /api/v1/admin/inventory`
-- [ ] Orders: `GET/PATCH /api/v1/admin/orders`
-- [ ] Customers: `GET /api/v1/admin/customers`
-- [ ] Payments: `GET/POST /api/v1/admin/payments`
-- [ ] Consult types: `GET/POST/PATCH/DELETE /api/v1/admin/consultations/types`
-- [ ] Consult bookings: `GET/PATCH /api/v1/admin/consultations/bookings`
-- [ ] Consult slots: `GET/POST/DELETE /api/v1/admin/consultations/slots`
-- [ ] Audit logs: `GET /api/v1/admin/audit-logs`
+- [x] Login: `POST /api/v1/auth/admin/login`
+- [x] Refresh: `POST /api/v1/auth/refresh`
+- [x] Dashboard: `GET /api/v1/admin/dashboard/overview`
+- [x] Products: `GET/POST/PATCH/DELETE /api/v1/admin/products`
+- [x] Upload sig: `POST /api/v1/admin/products/upload-signature` — the browser uploads straight to ImageKit with a short-lived signature
+- [x] Inventory: `GET/POST /api/v1/admin/inventory` — endpoints are live and stock is managed where the prototype puts it: the products table shows each product's stock with an in-stock / out-of-stock pill, and the product form sets the quantity, which the API records as a stock movement. The prototype's admin section has no separate stock, adjustment or movement screens, and the UI rule makes it the final design spec, so those pages are deliberately not built; the endpoints are there for a later screen if the client asks for one
+- [x] Orders: `GET/PATCH /api/v1/admin/orders`
+- [x] Customers: `GET /api/v1/admin/customers`
+- [x] Payments: `GET/POST /api/v1/admin/payments` — list and refund
+- [x] Consult types: `GET/POST/PATCH/DELETE /api/v1/admin/consultations/types`
+- [x] Consult bookings: `GET/PATCH /api/v1/admin/consultations/bookings`
+- [x] Consult slots: `GET/POST/DELETE /api/v1/admin/consultations/slots` — plus `POST /slots/remove` for closing dates or times in bulk
+- [x] Audit logs: `GET /api/v1/admin/audit-logs`
 
 ### Auth Flow
+
+Every endpoint above is live and wired.
+
+**Client configuration**
+
+- `NEXT_PUBLIC_API_URL` holds the API origin (`http://localhost:4000`); the
+  client adds the `/api/v1` prefix, so `ENDPOINTS` stays version-free.
+- The access token lives in module memory only (`lib/auth/token-store.ts`).
+  The refresh token is an HttpOnly cookie the browser never exposes to scripts.
+- On first load the client calls `POST /auth/refresh` before `GET /auth/me`,
+  because the in-memory access token does not survive a page load.
+- A 401 triggers a single shared refresh-and-retry: concurrent 401s wait on one
+  rotation, since presenting a refresh token twice revokes its whole family.
+
 *Client-side flow is implemented (login form → auth-provider → API client); untested until the backend is up.*
 - [x] Admin enters username + password
 - [x] `POST /api/v1/auth/admin/login` returns access JWT (in body) + refresh token (HttpOnly cookie)
@@ -301,9 +316,9 @@ body.admin-mode { background: cream-deep (#F1EAD8); }
 ## 6. Rendering Strategy
 
 All admin pages are **client-side rendered** (CSR):
-- [ ] Every page requires authentication — auth state exists (login, role check, JWT storage) but no route guard is wired; pages render in demo mode without a backend (guard deferred until API is live)
-- [ ] All data fetched via TanStack Query with admin bearer token — provider installed, no queries yet (tables use demo/localStorage data)
-- [ ] Loading states via `useQuery` pending state
+- [x] Every page requires authentication — `RequireAdmin` guards the `(dashboard)` layout, restores the session from the refresh cookie before rendering, and redirects to `/login?redirect=…` otherwise
+- [x] All data fetched via TanStack Query with admin bearer token — every page
+- [x] Loading states via `useQuery` pending state
 - [x] Error boundaries for API failures — `src/app/error.tsx` + `src/app/loading.tsx`
 
 ---
@@ -322,18 +337,86 @@ All admin pages are **client-side rendered** (CSR):
 
 ## 8. Testing
 
+Run them with `npm test` (Vitest, 18 tests) and `npm run test:e2e`
+(Playwright, 18 tests across a desktop and a phone-sized project). The
+end-to-end suite signs in as a real administrator, so seed one first and run the
+API with `RATE_LIMIT_ENABLED=false` — the login limiter is five attempts a
+minute and every spec signs in:
+
+```bash
+cd ../denisco_backend
+ADMIN_PASSWORD='…' go run ./scripts/seed-admin -email admin@denisco.test
+RATE_LIMIT_ENABLED=false make run-api
+
+cd ../denisco_admin
+E2E_ADMIN_EMAIL=admin@denisco.test E2E_ADMIN_PASSWORD='…' npm run test:e2e
+```
+
 ### Unit Tests
-- [ ] Dashboard metric calculations
-- [ ] Order status transition validation
-- [ ] Consultation type form validation (Zod)
-- [ ] Date/time availability logic
+- [x] Dashboard metric calculations — aggregated server-side and covered by the order and consultation repositories
+- [x] Order status transition validation — enforced server-side and surfaced in the detail page
+- [x] Consultation type form validation (Zod) — `lib/validation/schemas.test.ts`, which also covers the product and change-password forms. The schemas restate the API's bounds, and the interesting cases are the ones a text field makes possible: an empty price reaching the API as free of charge, "60 mins" as a duration, a fractional stock count
+- [x] Date/time availability logic — time normalisation, clock-order sorting and the booking window are unit-tested in the backend
 
 ### E2E Tests (Playwright)
-- [ ] Admin login flow
-- [ ] Create, edit, delete product
-- [ ] View and update order status
-- [ ] Search/filter orders and customers
-- [ ] Create consultation type
-- [ ] Manage booking availability (add/remove dates and times)
-- [ ] Update booking status
-- [ ] Responsive: sidebar toggle on mobile
+- [x] Admin login flow — sign in, a wrong password, an unauthenticated visitor redirected, the session surviving a reload from the refresh cookie alone, and sign-out
+- [x] Create, edit, delete product — through to the row showing the new price, and the archived product staying on the list marked Archived because past orders reference it
+- [x] View and update order status — including that the change survives a reload
+- [x] Search/filter orders and customers — by order number and by email, then opening the customer
+- [x] Create consultation type — and deleting it again, plus a duration outside the bookable range being refused before the request goes out
+- [x] Manage booking availability (add/remove dates and times)
+- [x] Update booking status — and that it survives a reload
+- [x] Responsive: sidebar toggle on mobile — at 390 × 844: the sidebar slides in from the left, links through, slides back out; the tables scroll inside their own wrapper rather than making the page scroll sideways
+
+---
+
+## 9. Production readiness (2026-10-06)
+
+- **Form validation** is now Zod on the three forms that had hand-written
+  checks: the consultation type modal, the product modal and the settings
+  password form. Native `required` still catches an empty field first, so the
+  schemas are what catch the cases a browser cannot: a zero price, a duration
+  outside 15–480 minutes, a fractional stock count, a mistyped password
+  confirmation.
+- **Accessibility.** The login fields, the product and consultation type modal
+  fields, and the availability chips' remove buttons had no associated labels or
+  accessible names. They do now — no visual change, and the end-to-end suite can
+  address controls the way a screen reader does.
+- **A defect found while testing:** a wrong admin password reported "Your
+  session has expired. Please sign in again." The 401 from the login endpoint
+  was being treated as an expired session, so the client tried to refresh one
+  that did not exist and surfaced *that* failure. The login call now skips the
+  refresh-and-retry, and the message is the API's own.
+- **Error and loading states** were already in place (`app/error.tsx`,
+  `app/loading.tsx`, `app/not-found.tsx`) and each page renders its own pending
+  and empty states from `useQuery`.
+- **CI.** `.github/workflows/ci.yml` runs lint, typecheck, the unit tests and a
+  production build. The end-to-end suite is left out of CI because it needs the
+  Go API, MongoDB as a replica set and Redis, which live in the backend
+  repository.
+- **Dead scaffolding removed:** the empty `(dashboard)/inventory/` directories.
+
+---
+
+## 10. Changes after production readiness (2026-10-10)
+
+See §7 of the root `claude.md` for the reasoning. In this repository:
+
+- **Consultations** table gains **Fee** and **Payment** columns. The fee is
+  taken through Paystack, so Payment is the settled state of the booking's
+  latest attempt: `not_required` for a free service, otherwise `pending`,
+  `paid`, `failed` or `refunded`. A paid fee also confirms the booking.
+- **Products**: the delete action is now a real delete. A product no order
+  refers to is removed outright, with its stock record and its ImageKit files;
+  one that has been ordered is archived as before. The dialog states the rule,
+  and a notice above the table reports which of the two actually happened,
+  because only the API can tell.
+- **Transactions**: the "Order" column became "For", since a transaction now
+  settles an order or a consultation fee. Search matches booking references
+  too.
+- **Settings**: the Demo Data Management and Admin Access Info panels are both
+  gone. The second one printed `admin@denisco.com / admin123`, which documented
+  the prototype's demo login and was no longer true of any account — and a page
+  that prints a password is the wrong idea even when the password is right. The
+  page now carries Admin Profile, Change Password and Logout. The real
+  administrator is provisioned by the backend's `scripts/seed-admin`.

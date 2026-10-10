@@ -9,6 +9,15 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Next.js inlines NEXT_PUBLIC_* into the client bundle at build time, so the
+# public URLs have to be supplied here rather than at run time. The defaults
+# keep a bare `docker build` working for local images.
+ARG NEXT_PUBLIC_API_URL="http://localhost:4000"
+ARG NEXT_PUBLIC_WEB_URL="http://localhost:3000"
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_WEB_URL=$NEXT_PUBLIC_WEB_URL
+
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

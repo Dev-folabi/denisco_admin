@@ -10,6 +10,10 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { apiClient } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
+import {
+  changePasswordSchema,
+  firstIssue,
+} from "@/lib/validation/schemas";
 
 const inputCls =
   "w-full rounded-[10px] border-[1.5px] border-line bg-white px-4 py-[13px] text-sm outline-none focus:border-olive";
@@ -71,8 +75,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user, isLoading, logout } = useAuth();
 
-  const [resetOpen, setResetOpen] = useState(false);
-  const [resetDone, setResetDone] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
 
   const [current, setCurrent] = useState("");
@@ -99,22 +101,14 @@ export default function SettingsPage() {
     setFormError("");
     setSuccess("");
 
-    if (!current) {
-      setFieldError("Enter your current password.");
-      return;
-    }
-    if (newPass.length < 8) {
-      setFieldError("New password must be at least 8 characters.");
-      return;
-    }
-    if (newPass !== confirmPass) {
-      setFieldError("New passwords do not match.");
-      return;
-    }
-    if (newPass === current) {
-      setFieldError(
-        "New password must be different from the current password."
-      );
+    const parsed = changePasswordSchema.safeParse({
+      current_password: current,
+      new_password: newPass,
+      confirm_password: confirmPass,
+    });
+
+    if (!parsed.success) {
+      setFieldError(firstIssue(parsed.error));
       return;
     }
 
@@ -263,54 +257,6 @@ export default function SettingsPage() {
             Logout
           </button>
         </Panel>
-
-        <Panel>
-          <PanelHead>
-            <h3 className="m-0 text-[17px] font-semibold">
-              Admin Access Info
-            </h3>
-          </PanelHead>
-          <div className="space-y-2 text-sm">
-            <p>
-              <strong>Username:</strong>{" "}
-              <code className="rounded bg-cream-deep px-2 py-0.5 text-[13px]">
-                admin@denisco.com
-              </code>
-            </p>
-            <p>
-              <strong>Password:</strong>{" "}
-              <code className="rounded bg-cream-deep px-2 py-0.5 text-[13px]">
-                admin123
-              </code>
-            </p>
-          </div>
-        </Panel>
-
-        <Panel>
-          <PanelHead>
-            <h3 className="m-0 text-[17px] font-semibold">
-              Demo Data Management
-            </h3>
-          </PanelHead>
-          <p className="mb-4 text-sm text-muted">
-            Clear the demo data stored in this browser. This removes any
-            products and consultation types you have added and restores the
-            empty state.
-          </p>
-          <button
-            type="button"
-            onClick={() => setResetOpen(true)}
-            className={dangerBtn}
-          >
-            Reset Demo Data
-          </button>
-          {resetDone && (
-            <p className="mt-3 text-[13px] font-bold text-badge-green-text">
-              Demo data cleared. Added products and consultation types have
-              been removed.
-            </p>
-          )}
-        </Panel>
       </div>
 
       <ConfirmDialog
@@ -323,25 +269,6 @@ export default function SettingsPage() {
         title="Logout?"
         message="You will be signed out of the admin console on this device."
         confirmLabel="Logout"
-        danger
-      />
-
-      <ConfirmDialog
-        open={resetOpen}
-        onClose={() => setResetOpen(false)}
-        onConfirm={() => {
-          try {
-            window.localStorage.removeItem("denisco_admin_products");
-            window.localStorage.removeItem("denisco_admin_consult_types");
-          } catch {
-            // ignore unavailable storage
-          }
-          setResetDone(true);
-          setResetOpen(false);
-        }}
-        title="Reset Demo Data?"
-        message="This will permanently clear all data and restore the initial demo state. This action cannot be undone."
-        confirmLabel="Reset Everything"
         danger
       />
     </>

@@ -29,6 +29,10 @@ const STATUS_VARIANTS: Record<string, StatusVariant> = {
   abandoned: "neutral",
   expired: "neutral",
   refunded: "neutral",
+  no_show: "danger",
+  // A free consultation has no fee to settle, so it reads as a plain fact
+  // rather than as something outstanding.
+  not_required: "neutral",
 };
 
 interface StatusPillProps {

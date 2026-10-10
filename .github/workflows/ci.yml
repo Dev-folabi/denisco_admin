@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, typecheck, test and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        # The public URLs are inlined at build time. These are placeholders:
+        # the deployed images are built with the real ones (see
+        # denisco_backend/deployments/README.md).
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+          NEXT_PUBLIC_WEB_URL: http://localhost:3000
+        run: npm run build
+
+# The end-to-end suite is not run here: it needs the Go API, MongoDB as a
+# replica set and Redis, which live in the backend repository. Run it against a
+# local or staging stack:
+#
+#   cd ../denisco_backend && make run-api        # with a seeded catalogue
+#   npm run build && npm run test:e2e

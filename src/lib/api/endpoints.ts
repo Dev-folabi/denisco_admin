@@ -6,6 +6,7 @@ export const ENDPOINTS = {
     me: "/auth/me",
     changePassword: "/auth/change-password",
     forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
   },
   dashboard: {
     overview: "/admin/dashboard/overview",
@@ -52,6 +53,7 @@ export const ENDPOINTS = {
     slots: {
       list: "/admin/consultations/slots",
       create: "/admin/consultations/slots",
+      remove: "/admin/consultations/slots/remove",
       delete: (id: string) => `/admin/consultations/slots/${id}`,
     },
   },

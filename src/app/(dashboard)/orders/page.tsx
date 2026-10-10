@@ -10,46 +10,61 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { MoneyFromKobo } from "@/lib/utils/format";
 import { fmtDate } from "@/lib/utils/format";
 import { ORDER_STATUSES } from "@/lib/constants";
-import { Eye, Search } from "lucide-react";
+import { Eye, Loader2, Search } from "lucide-react";
+import { useAdminOrders } from "@/features/orders/hooks";
+import type { Order } from "@/features/orders/types";
 
 export default function OrdersPage() {
   const toggleSidebar = useSidebarToggle();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
+  // Searching and filtering run on the server, so the table never has to hold
+  // the whole order history to show one status.
+  const { data, isPending, isError } = useAdminOrders({
+    search: search || undefined,
+    status: statusFilter || undefined,
+  });
+
+  const orders = data?.data ?? [];
+
   const columns = [
     { key: "order_number", header: "Order No." },
-    { key: "customer", header: "Customer" },
+    {
+      key: "customer",
+      header: "Customer",
+      render: (row: Order) => (
+        <span>
+          {row.customer.name}
+          <br />
+          <small className="text-muted">{row.customer.email}</small>
+        </span>
+      ),
+    },
     {
       key: "created_at",
       header: "Date",
-      render: (row: Record<string, unknown>) =>
-        fmtDate(row.created_at as string),
+      render: (row: Order) => fmtDate(row.created_at),
     },
     {
       key: "total",
       header: "Total",
-      render: (row: Record<string, unknown>) =>
-        MoneyFromKobo(row.total as number),
+      render: (row: Order) => MoneyFromKobo(row.total),
     },
     {
       key: "payment_status",
       header: "Payment",
-      render: (row: Record<string, unknown>) => (
-        <StatusPill status={row.payment_status as string} />
-      ),
+      render: (row: Order) => <StatusPill status={row.payment_status} />,
     },
     {
       key: "status",
       header: "Fulfillment",
-      render: (row: Record<string, unknown>) => (
-        <StatusPill status={row.status as string} />
-      ),
+      render: (row: Order) => <StatusPill status={row.status} />,
     },
     {
       key: "actions",
       header: "",
-      render: (row: Record<string, unknown>) => (
+      render: (row: Order) => (
         <Link
           href={`/orders/${row.id}`}
           className="inline-flex items-center gap-1.5 rounded-full bg-cream-deep px-4 py-[7px] text-[12px] font-bold text-forest transition-all hover:bg-olive hover:text-white"
@@ -66,7 +81,9 @@ export default function OrdersPage() {
 
       <Panel>
         <PanelHead>
-          <h3 className="m-0 text-[17px] font-semibold">All Orders (0)</h3>
+          <h3 className="m-0 text-[17px] font-semibold">
+            All Orders ({data?.meta?.total ?? orders.length})
+          </h3>
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative">
               <Search
@@ -96,11 +113,25 @@ export default function OrdersPage() {
           </div>
         </PanelHead>
 
-        <DataTable
-          columns={columns}
-          data={[]}
-          emptyMessage="No orders yet. Orders will appear here when customers start purchasing."
-        />
+        {isPending ? (
+          <div className="flex min-h-[220px] items-center justify-center">
+            <Loader2
+              size={26}
+              className="animate-spin text-olive"
+              aria-label="Loading orders"
+            />
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={orders}
+            emptyMessage={
+              isError
+                ? "The orders could not be loaded."
+                : "No orders yet. Orders will appear here when customers start purchasing."
+            }
+          />
+        )}
       </Panel>
     </>
   );

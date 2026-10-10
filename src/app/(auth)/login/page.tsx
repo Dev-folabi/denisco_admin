@@ -7,6 +7,29 @@ import { useAuth } from "@/lib/auth/auth-provider";
 import { useRouter } from "next/navigation";
 import { ADMIN } from "@/lib/constants";
 
+/**
+ * Resolves the post-login destination.
+ *
+ * Only same-site paths are honoured, so a crafted `?redirect=` cannot bounce a
+ * freshly signed-in admin to another domain.
+ */
+function readRedirectParam(): string | null {
+  // Read the parameter directly rather than with useSearchParams, which would
+  // force this page behind a Suspense boundary at build time for a value only
+  // ever needed on submit.
+  if (typeof window === "undefined") return null;
+  return new URLSearchParams(window.location.search).get("redirect");
+}
+
+function safeRedirect(redirect: string | null) {
+  if (!redirect) return "/dashboard";
+
+  const path = redirect.startsWith("/") ? redirect : `/${redirect}`;
+  if (path.startsWith("//") || path === "/login") return "/dashboard";
+
+  return path;
+}
+
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +44,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/dashboard");
+      router.replace(safeRedirect(readRedirectParam()));
     } catch (err: unknown) {
       const message =
         err instanceof Error && err.message === "Failed to fetch"
@@ -58,11 +81,15 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-5">
-            <label className="mb-2 block text-[13px] font-bold text-forest">
-              Email / Username
+            <label
+              htmlFor="admin-email"
+              className="mb-2 block text-[13px] font-bold text-forest"
+            >
+              Email Address
             </label>
             <input
-              type="text"
+              id="admin-email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-[10px] border-[1.5px] border-line bg-white px-4 py-[13px] text-sm outline-none focus:border-olive"
@@ -71,10 +98,14 @@ export default function AdminLoginPage() {
             />
           </div>
           <div className="mb-5">
-            <label className="mb-2 block text-[13px] font-bold text-forest">
+            <label
+              htmlFor="admin-password"
+              className="mb-2 block text-[13px] font-bold text-forest"
+            >
               Password
             </label>
             <input
+              id="admin-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -99,7 +130,8 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="mt-4 rounded-[10px] bg-cream-deep p-3 text-center text-xs text-muted">
-          <strong>Demo:</strong> admin@denisco.com / admin123
+          Administrative accounts are provisioned by DENISCO. Contact the
+          super administrator if you need access.
         </div>
 
         <p className="mt-6 text-center text-sm text-muted">
