@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { ADMIN_EMAIL, ADMIN_PASSWORD, signIn } from "./helpers";
+import { ADMIN_EMAIL, signIn } from "./helpers";
 
 test.describe("admin access", () => {
   test("signs in and lands on the dashboard", async ({ page }) => {
