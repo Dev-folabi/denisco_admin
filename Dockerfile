@@ -3,7 +3,11 @@ FROM node:22-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+# The build needs the devDependencies too: Next.js resolves
+# @tailwindcss/postcss and typescript from postcss.config.mjs during
+# `npm run build`. They are still absent from the final image, because the
+# runner stage copies only the standalone output.
+RUN npm ci
 
 FROM base AS builder
 WORKDIR /app

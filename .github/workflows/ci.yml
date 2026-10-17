@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag to deploy (e.g. sha-<full>); leave empty for this commit"
+        required: false
 
 permissions:
   contents: read
@@ -76,3 +81,38 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=https://api.deniscoglobalagroltd.com
             NEXT_PUBLIC_WEB_URL=https://deniscoglobalagroltd.com
+
+  deploy:
+    name: Deploy to the VPS
+    needs: publish
+    # Runs for a push to main and for a manual dispatch (which takes an
+    # optional image tag, for rolling back to a previous release). The VPS
+    # itself must already be provisioned; DEPLOY_ENABLED is the switch.
+    if: |
+      always() &&
+      needs.publish.result == 'success' &&
+      vars.DEPLOY_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-denisco-admin
+      cancel-in-progress: false
+
+    steps:
+      - name: Deploy admin
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          TAG: ${{ github.event.inputs.tag || format('sha-{0}', github.sha) }}
+        run: |
+          if [ -z "$SSH_KEY" ] || [ -z "$VPS_HOST" ]; then
+            echo "VPS_SSH_KEY secret and VPS_HOST variable are required" >&2
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
+          ssh -o StrictHostKeyChecking=accept-new "deploy@$VPS_HOST" \
+            "cd /srv/denisco/denisco_backend/deployments && ./deploy.sh admin '$TAG'"
