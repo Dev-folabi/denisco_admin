@@ -82,17 +82,6 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api.deniscoglobalagroltd.com
             NEXT_PUBLIC_WEB_URL=https://deniscoglobalagroltd.com
 
-      # The VPS pulls these images anonymously, so the package has to be
-      # public. New packages default to private; this makes it public on
-      # every publish, which is idempotent.
-      - name: Make the package public
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api -X PUT \
-            "/users/${{ github.repository_owner }}/packages/container/denisco-admin/visibility" \
-            -F visibility=public
-
   deploy:
     name: Deploy to the VPS
     needs: publish
