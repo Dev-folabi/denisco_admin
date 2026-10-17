@@ -131,6 +131,40 @@ export const changePasswordSchema = z
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
 
 /**
+ * A home-delivery area, as the settings form submits it. Naira in the form,
+ * kobo on the wire — the API's bounds are restated so a rate the server
+ * would refuse never leaves the browser.
+ */
+export const deliveryLocationSchema = z
+  .object({
+    name: trimmed
+      .min(1, "Please enter an area name")
+      .max(120, "The name must be 120 characters or fewer"),
+    // Naira in the form; converted to kobo before the request goes out.
+    fee: numeric("Delivery fee"),
+  })
+  .superRefine((values, ctx) => {
+    const fee = Number(values.fee);
+    if (fee < 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["fee"],
+        message: "The delivery fee cannot be negative",
+      });
+    }
+    // The API's ceiling, converted from its 10,000,000,000 kobo.
+    if (fee > 100_000_000) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["fee"],
+        message: "That delivery fee is unrealistically large",
+      });
+    }
+  });
+
+export type DeliveryLocationValues = z.infer<typeof deliveryLocationSchema>;
+
+/**
  * Returns the first problem with a form, as a sentence for the message above
  * it — the management modals show one at a time.
  */

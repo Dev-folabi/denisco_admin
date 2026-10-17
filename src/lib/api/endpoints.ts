@@ -60,4 +60,9 @@ export const ENDPOINTS = {
   auditLogs: {
     list: "/admin/audit-logs",
   },
+  delivery: {
+    offering: "/admin/delivery",
+    locations: "/admin/delivery/locations",
+    location: (id: string) => `/admin/delivery/locations/${id}`,
+  },
 } as const;

@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { apiClient } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
+import { DeliveryPanel } from "@/features/delivery/delivery-panel";
 import {
   changePasswordSchema,
   firstIssue,
@@ -244,6 +245,8 @@ export default function SettingsPage() {
             </button>
           </form>
         </Panel>
+
+        <DeliveryPanel />
 
         <Panel>
           <PanelHead>
