@@ -1,4 +1,4 @@
-name: CI
+name: CI and Publish Image
 
 on:
   push:
@@ -34,17 +34,45 @@ jobs:
         run: npm test
 
       - name: Build
-        # The public URLs are inlined at build time. These are placeholders:
-        # the deployed images are built with the real ones (see
-        # denisco_backend/deployments/README.md).
         env:
-          NEXT_PUBLIC_API_URL: http://localhost:4000
-          NEXT_PUBLIC_WEB_URL: http://localhost:3000
+          NEXT_PUBLIC_API_URL: https://api.deniscoglobalagroltd.com
+          NEXT_PUBLIC_WEB_URL: https://deniscoglobalagroltd.com
         run: npm run build
 
-# The end-to-end suite is not run here: it needs the Go API, MongoDB as a
-# replica set and Redis, which live in the backend repository. Run it against a
-# local or staging stack:
-#
-#   cd ../denisco_backend && make run-api        # with a seeded catalogue
-#   npm run build && npm run test:e2e
+  publish:
+    name: Build and push GHCR image
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/dev-folabi/denisco-admin
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.deniscoglobalagroltd.com
+            NEXT_PUBLIC_WEB_URL=https://deniscoglobalagroltd.com
