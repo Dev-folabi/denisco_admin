@@ -71,7 +71,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
       >
         <div className="mb-6 flex items-center gap-2.5 px-1.5 lg:mb-[34px]">
           <Image
-            src="https://ik.imagekit.io/a8q3rfdl1/DENISCO%20FARM%20MEDIA/Company%20logo.jpeg"
+            src="/images/Company_logo.jpeg"
             alt="DENISCO logo"
             width={50}
             height={50}

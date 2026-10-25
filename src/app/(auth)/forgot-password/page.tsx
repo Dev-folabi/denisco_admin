@@ -37,7 +37,7 @@ export default function AdminForgotPasswordPage() {
       <div className="w-full max-w-[420px] rounded-[18px] border border-line bg-white p-8 shadow-[var(--shadow-lg)]">
         <div className="mb-6 text-center">
           <Image
-            src="https://ik.imagekit.io/a8q3rfdl1/DENISCO%20FARM%20MEDIA/Company%20logo.jpeg"
+            src="/images/Company_logo.jpeg"
             alt="DENISCO logo"
             width={60}
             height={60}
