@@ -45,7 +45,8 @@ export const BOOKING_STATUSES = [
 export const PRODUCT_CATEGORIES = [
   { value: "poultry", label: "Poultry" },
   { value: "livestock", label: "Livestock" },
-  { value: "piggery", label: "Piggery" },
-  { value: "snail", label: "Snail" },
-  { value: "crops", label: "Crops" },
+  { value: "piggery", label: "Pig & Micro-Livestock" },
+  { value: "crops", label: "Crop Farming" },
+  { value: "snail", label: "Snail Farming" },
+  { value: "spices", label: "Spices & Nutrition" },
 ] as const;

@@ -39,8 +39,10 @@ export default function ProductsPage() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
   const { data, isPending, isError } = useAdminProducts({
     search: search || undefined,
+    category: category || undefined,
   });
 
   const createProduct = useCreateProduct();
@@ -280,7 +282,7 @@ export default function ProductsPage() {
           <h3 className="m-0 text-[17px] font-semibold">
             All Products ({data?.meta?.total ?? products.length})
           </h3>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <input
               type="search"
               value={search}
@@ -288,6 +290,19 @@ export default function ProductsPage() {
               placeholder="Search products…"
               className="rounded-full border border-line bg-white px-4 py-[9px] text-[13px] outline-none focus:border-olive"
             />
+            <select
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+              aria-label="Filter by category"
+              className="rounded-full border border-line bg-white px-4 py-[9px] text-[13px] outline-none focus:border-olive"
+            >
+              <option value="">All Categories</option>
+              {PRODUCT_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
             <button
               type="button"
               onClick={openAdd}
